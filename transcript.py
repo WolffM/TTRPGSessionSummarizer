@@ -1,12 +1,14 @@
 import os
 import shutil
 import time
-
+import logging
 import librosa
 import openai
 import soundfile as sf
 import youtube_dl
 from yt_dlp import YoutubeDL as youtube_dl, DownloadError
+
+logging.basicConfig(filename='transcript.log', level=logging.DEBUG)
 
 def find_audio_files(path, extension=".mp3"):
     """Recursively find all files with extension in path."""
@@ -84,23 +86,25 @@ def chunk_audio(filename, segment_length: int, output_dir):
     return sorted(chunked_audio_files)
 
 def transcribe_audio(audio_files: list, output_file=None, model="whisper-1") -> list:
-    print("converting audio to text...")
+    print("Converting audio to text...")
 
     transcripts = []
-    for audio_file in audio_files:
-        audio = open(audio_file, "rb")
-        while True:  # Retry loop
-            try:
-                response = openai.Audio.transcribe(model, audio)
-                transcripts.append(response["text"])
-                break  # Exit the loop on success
-            except openai.error.RateLimitError:
-                print("Rate limit error. Waiting 60 seconds...")
-                time.sleep(60)  # Pause for a minute
+    if os.path.exists(output_file):  # Check if transcripts exist
+        with open(output_file, "r") as file:
+            transcripts = file.readlines()
+    else:  # Transcribe if needed
+        for audio_file in audio_files:
+            audio = open(audio_file, "rb")
+            while True:  # Retry loop
+                try:
+                    response = openai.Audio.transcribe(model, audio)
+                    transcripts.append(response["text"])
+                    break  # Exit the loop on success
+                except openai.error.RateLimitError:
+                    print("Rate limit error. Waiting 60 seconds...")
+                    time.sleep(60)  # Pause for a minute
 
-
-    if output_file is not None:
-        # save all transcripts to a .txt file
+    if output_file is not None and not transcripts:  # Save if new transcripts created
         with open(output_file, "w") as file:
             for transcript in transcripts:
                 file.write(transcript + "\n")
@@ -134,45 +138,54 @@ def summarize(
     return summaries
 
 def summarize_youtube_video(youtube_url, outputs_dir):
-    raw_audio_dir = f"{outputs_dir}/raw_audio/"
-    chunks_dir = f"{outputs_dir}/chunks"
-    transcripts_file = f"{outputs_dir}/transcripts.txt"
-    summary_file = f"{outputs_dir}/summary.txt"
+    video_id = youtube_url.split("?v=")[-1]  # Extract video ID
+    output_dir = os.path.join(outputs_dir, video_id)  # Create output folder using video ID
+    raw_audio_dir = os.path.join(output_dir, "raw_audio")
+    chunks_dir = os.path.join(output_dir, "chunks")
+    transcripts_file = os.path.join(output_dir, "transcripts.txt")
+    summary_file = os.path.join(output_dir, "summary.txt")
+    summary_file_long = os.path.join(output_dir, "summary_long.txt")
     segment_length = 10 * 60  # chunk to 10 minute segments
 
-    if os.path.exists(outputs_dir):
-        # delete the outputs_dir folder and start from scratch
-        shutil.rmtree(outputs_dir)
-        os.mkdir(outputs_dir)
+    os.makedirs(output_dir, exist_ok=True)  # Create folder if it doesn't exist 
 
-    # download the video using youtube-dl
-    audio_filename = youtube_to_mp3(youtube_url, output_dir=raw_audio_dir)
+    # Download video (and check if it was already downloaded)
+    audio_filename = None
+    for file in os.listdir(output_dir):
+        if file.endswith(".mp3"):
+            audio_filename = os.path.join(raw_audio_dir, file)
+            break
 
-    # chunk each audio file to shorter audio files (not necessary for shorter videos...)
-    chunked_audio_files = chunk_audio(
-        audio_filename, segment_length=segment_length, output_dir=chunks_dir
-    )
+    if audio_filename is None:  
+        audio_filename = youtube_to_mp3(youtube_url, output_dir=raw_audio_dir)
 
-    # transcribe each chunked audio file using whisper speech2text
-    transcriptions = transcribe_audio(chunked_audio_files, transcripts_file)
+    # Chunk audio (and check for existing chunks)
+    chunked_audio_files = find_audio_files(chunks_dir)
+    if not chunked_audio_files:
+        chunked_audio_files = chunk_audio(
+            audio_filename, segment_length=segment_length, output_dir=chunks_dir
+        )
 
-    # summarize each transcription using chatGPT
-    system_prompt = """
-        You are an expert Pathfinder summarizer. Analyze this transcribed audio chunk from my recorded Pathfinder session and provide a clear, bullet-point summary focusing on:
-        Seperate your bullets into sections with meaningful section heads. Don't write more than ~30 bullet points in total. While writing keep a narrative tone, try not to sound overly serious or robotic. Use a prose as if you might be a storyteller.
-        Key Actions: What critical decisions did the party make? Did they fight powerful foes, overcome a puzzle, or negotiate a tense situation?
-        Plot Developments: Did any major story revelations occur? Did they find crucial clues, uncover a villain's plot, or make progress toward their ultimate goal?
-        New Characters: Were any important NPCs introduced? Summarize their name, role, and any key interactions with the party.
-        Comedic Moments: Did any hilarious banter, epic fails, or unexpected antics happen? Capture those moments!
-        Example to illustrate: If the transcribed chunk includes fighting a big monster and discovering a hidden room, the ideal summary should look something like this:
-        In the Caves
-        * The party vanquished a great monster in a harrowing battle.
-        * In the heat of the moment, Slick broke from the group to lockpick a hidden door, what a sneaky rat!
-        * After the battle they made contact with Duncan, a dwarven miner, who told them about the upcoming great danger in the caves.
-    """
-    summaries = summarize(
-        transcriptions, system_prompt=system_prompt, output_file=summary_file
-    )
+    # Transcribe audio (and check for existing transcripts)
+    if not os.path.exists(transcripts_file):
+        transcriptions = transcribe_audio(chunked_audio_files, transcripts_file)
+    else:
+        with open(transcripts_file, 'r') as f:
+            transcriptions = f.readlines()
+
+    # Summarize (and check for existing summaries)   
+    if not os.path.exists(summary_file):
+        system_prompt = """
+            You are an expert Pathfinder summarizer. Analyze this transcribed audio chunk from my recorded Pathfinder session and provide a clear, bullet-point summary focusing on:
+            Seperate your bullets into sections with meaningful section heads. While writing, keep a narrative tone, try not to sound overly serious or robotic. Make sure to keep the summary in chronological order. Use a prose as if you might be a storyteller.
+            Key Actions: What critical decisions did the party make? Did they fight powerful foes, overcome a puzzle, or negotiate a tense situation?
+            Plot Developments: Did any major story revelations occur? Did they find crucial clues, uncover a villain's plot, or make progress toward their ultimate goal?
+            New Characters: Were any important NPCs introduced? Summarize their name, role, and any key interactions with the party.
+            Comedic Moments: Did any hilarious banter, epic fails, or unexpected antics happen? Capture those moments!
+        """
+        summaries = summarize(
+            transcriptions, system_prompt=system_prompt, output_file=summary_file_long
+        )
 
     system_prompt_tldr = """
         You are an expert Pathfinder summarizer. Analyze this transcribed audio chunk from my recorded Pathfinder session and provide a clear, bullet-point summary focusing on:
@@ -195,9 +208,9 @@ def summarize_youtube_video(youtube_url, outputs_dir):
 
     return long_summary, short_summary
 
-youtube_url = "<PUT YOUTUBE VIDEO LINK>"
+youtube_url = "https://www.youtube.com/watch?v=vPuD-BMn50U"
 outputs_dir = "outputs/"
-openai.api_key = '<PUT OPENAI KEY HERE>'
+openai.api_key = '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'
 
 long_summary, short_summary = summarize_youtube_video(youtube_url, outputs_dir)
 
