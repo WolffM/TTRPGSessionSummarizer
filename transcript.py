@@ -1,14 +1,14 @@
 import os
 import shutil
 import time
-import logging
 import librosa
 import openai
 import soundfile as sf
 import youtube_dl
 from yt_dlp import YoutubeDL as youtube_dl, DownloadError
+from dotenv import load_dotenv
 
-logging.basicConfig(filename='transcript.log', level=logging.DEBUG)
+
 
 def find_audio_files(path, extension=".mp3"):
     """Recursively find all files with extension in path."""
@@ -208,9 +208,10 @@ def summarize_youtube_video(youtube_url, outputs_dir):
 
     return long_summary, short_summary
 
+load_dotenv()
 youtube_url = "https://www.youtube.com/watch?v=vPuD-BMn50U"
 outputs_dir = "outputs/"
-openai.api_key = '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'
+TOKEN = os.getenv('DISCORD_TOKEN');
 
 long_summary, short_summary = summarize_youtube_video(youtube_url, outputs_dir)
 
