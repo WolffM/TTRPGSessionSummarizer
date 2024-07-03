@@ -12,18 +12,6 @@ This project automates the creation of detailed and concise summaries from YouTu
 - **Customizable Prompts:** Tailor the AI's summarization style to your preferences.
 - **Local Storage:** Save transcripts and summaries for future reference.
 
-## Installation
-
-1. **Prerequisites:**
-   - Python 3.x
-   - OpenAI API key (store in a `.env` file)
-   - `youtube-dl`, `yt-dlp`, `librosa`, `soundfile`, `openai`, and `python-dotenv` libraries (install using `pip install youtube-dl yt-dlp librosa soundfile openai python-dotenv`)
-2. **Clone Repository:**
-   ```bash
-   git clone [invalid URL removed]
-   cd pathfinder-session-summarizer
-   ```
-
 ## Usage
 
 1. **Set up your .env file:**
