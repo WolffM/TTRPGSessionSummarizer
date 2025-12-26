@@ -209,9 +209,9 @@ def summarize_youtube_video(youtube_url, outputs_dir):
     return long_summary, short_summary
 
 load_dotenv()
-youtube_url = "https://www.youtube.com/watch?v=vPuD-BMn50U"
+youtube_url = "https://www.youtube.com/watch?v=eGegXKCd4VQ"
 outputs_dir = "outputs/"
-TOKEN = os.getenv('DISCORD_TOKEN');
+openai.api_key = os.getenv('OPENAI_KEY');
 
 long_summary, short_summary = summarize_youtube_video(youtube_url, outputs_dir)
 
