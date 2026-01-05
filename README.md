@@ -1,5 +1,7 @@
 # TTRPG Session Summarizer
 
+> **Automated AI-powered summarization of TTRPG session recordings using Whisper and GPT**
+
 This project automates the creation of detailed and concise summaries from YouTube recordings of Pathfinder tabletop role-playing game (TTRPG) sessions. By leveraging OpenAI's Whisper for transcription and GPT models for summarization, it streamlines the process of capturing key moments and plot developments from your adventures.
 
 ## Features
