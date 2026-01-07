@@ -1,0 +1,23 @@
+name: vibeCheck
+
+on:
+  workflow_dispatch: # Manual trigger via Actions tab
+
+permissions:
+  contents: read
+  issues: write
+  security-events: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: WolffM/vibecheck@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          severity_threshold: "low"
+          confidence_threshold: "medium"
