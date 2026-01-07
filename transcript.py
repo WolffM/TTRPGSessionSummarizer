@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 def find_audio_files(path, extension=".mp3"):
     """Recursively find all files with extension in path."""
     audio_files = []
-    for root, dirs, files in os.walk(path):
+    for root, _, files in os.walk(path):
         for f in files:
             if f.endswith(extension):
                 audio_files.append(os.path.join(root, f))
