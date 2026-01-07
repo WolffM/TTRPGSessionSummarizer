@@ -4,7 +4,6 @@ import time
 import librosa
 import openai
 import soundfile as sf
-import youtube_dl
 from yt_dlp import YoutubeDL as youtube_dl, DownloadError
 from dotenv import load_dotenv
 
