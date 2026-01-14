@@ -1,23 +1,39 @@
 name: vibeCheck
-
 on:
-  workflow_dispatch: # Manual trigger via Actions tab
+  workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   issues: write
+  pull-requests: write
   security-events: write
 
 jobs:
   analyze:
+    name: Static Analysis
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: WolffM/vibecheck@main
+      - name: Run vibeCheck
+        uses: WolffM/vibecheck@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          severity_threshold: low
+          cadence: weekly
+          severity_threshold: medium
           confidence_threshold: medium
+          skip_issues: false
+          autofix_prs: true
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vibecheck-results
+          path: .vibecheck-output/
+          retention-days: 14
+          if-no-files-found: ignore
