@@ -1,10 +1,10 @@
 import os
 import time
-import librosa
-import openai
-import soundfile as sf
-from yt_dlp import YoutubeDL as youtube_dl, DownloadError
-from dotenv import load_dotenv
+import librosa  # type: ignore[import-not-found]
+import openai  # type: ignore[import-not-found]
+import soundfile as sf  # type: ignore[import-not-found]
+from yt_dlp import YoutubeDL as youtube_dl, DownloadError  # type: ignore[import-untyped]
+from dotenv import load_dotenv  # type: ignore[import-not-found]
 
 
 
