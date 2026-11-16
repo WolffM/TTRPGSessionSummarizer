@@ -32,9 +32,9 @@ from the command line against a YouTube URL and your own OpenAI API key, and
 it writes two summary files to disk.
 
 Point it at a recording of a tabletop session — it was written for a
-Pathfinder group's recorded games — and it downloads the audio, transcribes
-it with Whisper, and asks GPT for a long-form, chronological recap and a
-short TL;DR, each saved as a text file next to the others under `outputs/`.
+Pathfinder group's recorded games. It downloads the audio, transcribes it
+with Whisper, and asks GPT for a long-form, chronological recap and a short
+TL;DR, each saved as a text file next to the others under `outputs/`.
 
 - [Features](features.md): what each step does and how to run it.
 - [Contributing](contributing.md): running it locally, how it's laid out, its one CI check.

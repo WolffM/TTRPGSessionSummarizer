@@ -29,14 +29,15 @@ Beyond that rename, the project has had no further eras. `transcript.py`
 itself — the whole pipeline: download, chunk, transcribe, summarize
 twice, written in March 2024 — gained no feature changes afterward, only
 lint and typing fixes via GitHub's Copilot coding agent; the README
-gained a tagline in January 2026 and has kept it since (`81b7136`). The
-longest stretch with no commits at all was 541 days, from a 2024-07-03
-README edit (`a7f8a1d`) to a two-line auto-commit on 2025-12-26 that
-swapped the hard-coded YouTube URL and fixed the OpenAI key to read from
-`OPENAI_KEY` instead of reading the Discord token into an unused variable
-(`08346f1`) (fact sheet, 2026-11-16). `transcript.py` itself went even
-longer without a human edit: 652 days, from `59b62ab` on 2024-03-14 to
-that same `08346f1` auto-commit (fact sheet, 2026-11-16).
+gained a tagline in January 2026 and has kept it since (`81b7136`).
+
+The longest stretch with no commits at all was 541 days, from a 2024-07-03
+README edit (`a7f8a1d`) to a two-line auto-commit on 2025-12-26. That
+auto-commit swapped the hard-coded YouTube URL and fixed the OpenAI key: it
+had been reading the Discord token into an unused variable, and now reads
+`OPENAI_KEY` instead (`08346f1`; fact sheet, 2026-11-16). `transcript.py`
+itself went even longer without a human edit: 652 days, from `59b62ab` on
+2024-03-14 to that same `08346f1` auto-commit (fact sheet, 2026-11-16).
 
 In January and February 2026 the repo picked up a GitHub Actions workflow,
 `vibecheck.yml`, that runs a static-analysis bot on manual trigger

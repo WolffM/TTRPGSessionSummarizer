@@ -17,17 +17,17 @@ pip install librosa openai python-dotenv soundfile yt-dlp
 ```
 
 You also need `ffmpeg` on your `PATH` (yt-dlp's audio extraction shells out
-to it) and a `.env` file, `.gitignore`d, holding `OPENAI_KEY` (the actual
-variable name `transcript.py` reads with `os.getenv('OPENAI_KEY')`; the
+to it), and a `.env` file, `.gitignore`d, holding `OPENAI_KEY` — the actual
+variable name `transcript.py` reads with `os.getenv('OPENAI_KEY')`. The
 README's own example names `OPENAI_API_KEY` instead, which this script does
-not read — see Known issues below).
+not read; see Known issues below.
 
 `transcript.py` is written against the pre-1.0 OpenAI Python SDK:
 `openai.Audio.transcribe(...)` and `openai.ChatCompletion.create(...)`.
 Both calls were removed from the `openai` package starting with its 1.0
-release, so `pip install openai` today installs a version this script
-cannot run against unmodified; pin an `openai<1.0` release, or update the
-calls to the current `client.audio.transcriptions.create` /
+release. `pip install openai` today installs a version this script cannot
+run against unmodified. Pin an `openai<1.0` release, or update the calls to
+the current `client.audio.transcriptions.create` /
 `client.chat.completions.create` style, to actually run it.
 
 The script has no CLI argument parsing: open `transcript.py`, edit the
@@ -46,7 +46,17 @@ python transcript.py
 | `.github/workflows/vibecheck.yml` | a manually-triggered static-analysis workflow (`WolffM/vibecheck`) |
 
 There is no package layout, no tests, and no entry point beyond running the
-one file.
+one file. Everything in `transcript.py` runs as one straight-line pipeline:
+
+```mermaid
+flowchart LR
+    A[YouTube URL] --> B[youtube_to_mp3: yt-dlp + ffmpeg]
+    B --> C[chunk_audio: 10-minute segments]
+    C --> D[transcribe_audio: Whisper]
+    D --> E[summarize: GPT long-form recap]
+    E --> F[summarize again: GPT TL;DR]
+    F --> G[outputs/video_id/*.txt]
+```
 
 ## Tests and gates
 

@@ -68,7 +68,7 @@ a video you've already processed is safe and cheap — it reuses whatever
 finished last time and only does the remaining work.
 
 **What it does not do.** The resume check on the final TL;DR step
-(`summary_file`) is not safe to actually resume from: `summarize_youtube_video()`
+(`summary_file`) is not safe to actually resume from. `summarize_youtube_video()`
 only builds the `summaries` list inside the branch that runs when
 `summary_file` does *not* yet exist, but then reads that same `summaries`
 variable unconditionally afterward to build the TL;DR. Re-running the
