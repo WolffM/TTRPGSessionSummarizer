@@ -1,30 +1,3 @@
----
-title: TTRPG Session Summarizer
-summary: >-
-  A command-line pipeline that turns a recorded YouTube tabletop session into
-  a readable summary: download the audio, transcribe it with OpenAI Whisper,
-  then have GPT write a long-form and a TL;DR recap. No server, no sign-in —
-  you run it against your own OpenAI API key.
-features:
-  - name: YouTube download
-    summary: 'Pulls the audio track from a YouTube URL with yt-dlp.'
-    anchor: youtube-download
-  - name: Chunked transcription
-    summary: 'Splits long audio into 10-minute pieces and transcribes each with Whisper.'
-    anchor: chunked-transcription
-  - name: Two summary formats
-    summary: 'A long-form, chronological recap and a short TL;DR, both GPT-written.'
-    anchor: two-summary-formats
-  - name: Resumable runs
-    summary: 'Skips the download, chunking or transcription step if its output already exists.'
-    anchor: resumable-runs
-trivia:
-  - 'The repo was not born under this name: a 2024 merge commit still names its old remote, `ytTranscriptToWhisper` (`f747242`), and the README''s own heading said the same until it was rewritten two months later (`09f4080`).'
-  - 'That same rewrite pasted boilerplate from an AI-written README template, literal placeholder text and all: an Installation section told readers to `git clone [invalid URL removed]` (`09f4080`); it was deleted 44 days later (`a7f8a1d`).'
-  - 'The busiest day in the repo''s history, 2026-01-07, was six commits: five Copilot-authored pull requests fixing lint findings back to back, plus the one commit from the repo''s owner, earlier that same day, that added a static-analysis workflow (`149dd7b`, `b3e493d`, `c1a6e06`, `7a0e32d`, `4521da5`, `3cc4091`; fact sheet, 2026-11-16).'
-  - 'The repo went 541 days with no commits at all, from a 2024-07-03 README edit (`a7f8a1d`) to a two-line auto-commit on 2025-12-26 (`08346f1`) (fact sheet, 2026-11-16).'
----
-
 # TTRPG Session Summarizer
 
 This is a single Python script, `transcript.py`, not a hosted app: you run it
